@@ -82,6 +82,8 @@ Infra de apoio:
 
 ## Links rápidos internos
 
+- [Hermes — Relatório final (CFO digital)](relatorio/RELATORIO-FINAL-HERMES.md)
+- [Hermes — Configuração e colagens](hermes/README.md)
 - [Hermes — Setup VerticalParts](hermes/verticalparts-setup.md)
 - [Evolution API — Instância pv360](evolution-api/verticalparts-pv360.md)
 - [Problema @lid WhatsApp](evolution-api/at-lid-limitation.md)
@@ -90,4 +92,4 @@ Infra de apoio:
 
 ---
 
-*Atualizado em: 2026-05-28*
+*Atualizado em: 2026-05-31*
