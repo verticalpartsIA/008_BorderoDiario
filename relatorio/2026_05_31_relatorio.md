@@ -8,6 +8,14 @@ atendente de IA mais preparado (horários, feriados, anti-golpe, tom).
 
 ---
 
+> ⚠️ **ATENÇÃO — NÃO CONFUNDIR OS DOIS "HERMES":** o "Hermes" tratado neste relatório é a **IA de
+> auto-resposta do WhatsApp do Pós-Venda 360** (código do app `resolve-360`, em `hostinger/server.mjs`).
+> Ele **NÃO é** o **Hermes do Telegram** (o agente CFO de finanças/Omie, no container
+> `vpautomation-hermes`). São **dois sistemas totalmente diferentes** que apenas compartilham o nome.
+> Detalhes na seção 1.
+
+---
+
 ## 0. TL;DR — estado final
 
 - ✅ **Fluxo completo no ar:** mensagem do cliente no WhatsApp → app cria **ticket** automático
