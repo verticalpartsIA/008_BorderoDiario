@@ -2,16 +2,14 @@
 
 ## Contexto
 
-Sessão focada no **Borderô Financeiro** ().
+Sessão focada no **Borderô Financeiro** (`/root/bordero/gerar_bordero.py`).
 Gelson solicitou que o Borderô passe a exibir **somente NFs que representam receita real de venda** — excluindo notas fiscais de remessa, transferência, comodato, amostras e similares, que movimentam estoque mas não geram caixa.
 
 ---
 
 ## Investigação — CFOPs na API Omie
 
-### O que foi feito
-
-Consultou-se a API  (ListarCFOP, 676 registros em 14 páginas) para localizar os CFOPs de interesse:
+Consultou-se a API `https://app.omie.com.br/api/v1/produtos/cfop/` (ListarCFOP, 676 registros em 14 páginas) para localizar os CFOPs de interesse:
 
 | CFOP | Descrição | Encontrado |
 |---|---|---|
@@ -20,15 +18,9 @@ Consultou-se a API  (ListarCFOP, 676 registros em 14 páginas) para localizar os
 | 5.405 | Venda Merc. Adq/Rec. Terceiros, S.T., Contrib. Substituído | ✅ |
 | 5.406 | — | ❌ Não cadastrado no Omie da VP |
 
-### Conclusão conceitual
+**Conclusão conceitual:** CFOPs série 5.xxx = saídas intraestado; série 6.xxx = saídas interestaduais. Ambas representam receita quando são de venda real.
 
-CFOPs série **5.xxx** = saídas dentro do estado (intraestado). CFOPs série **6.xxx** = saídas para outros estados. Ambas representam receita, desde que sejam de **venda real**.
-
-O Borderô precisava excluir:
-- Transferências entre filiais (5.151, 5.152, 6.151, 6.152)
-- Remessas/retornos de industrialização, conserto, demonstração, comodato
-- Encomendas para entrega futura (a receita vem depois, na NF real)
-- Amostras grátis e outras remessas sem contraprestação financeira
+O CFOP está no campo `det[0].prod.CFOP` da resposta da API `ListarNF` — nível de item, não de cabeçalho.
 
 ---
 
@@ -36,29 +28,36 @@ O Borderô precisava excluir:
 
 ### Arquivo modificado
 
- — versão v4 (10/06/2026)
+`/root/bordero/gerar_bordero.py`
 
 ### O que mudou
 
-1. **Adicionada constante ** (logo após a função ):
+**1. Adicionada constante `CFOP_EXCLUIR`** (logo após a função `brl()`):
 
+```python
+CFOP_EXCLUIR = {
+    '5.151', '5.152', '6.151', '6.152',   # transferências entre filiais
+    '5.901', '5.902', '6.901', '6.902',   # remessa/retorno industrialização
+    '5.915', '5.916', '6.915', '6.916',   # remessa/retorno conserto
+    '5.912', '5.913', '6.912', '6.913',   # remessa/retorno demonstração
+    '5.908', '5.909', '6.908', '6.909',   # remessa/retorno comodato
+    '5.117', '6.117',                      # venda p/ entrega futura (receita só na NF real)
+    '5.949', '6.949',                      # amostras grátis e remessas sem receita
+    '5.201', '5.202', '6.201', '6.202',   # devoluções de compra emitidas pela VP
+}
+```
 
+**2. Filtro aplicado em `nfe_omie()`:** extrai o CFOP de `det[0].prod.CFOP` e pula a NF se estiver na lista.
 
-2. **Filtro aplicado na função **: antes de adicionar cada NF à lista, extrai o CFOP do primeiro item () e pula a NF se o CFOP estiver na lista de exclusão.
+**3. Campo `cfop` adicionado** ao dict de cada NF retornada (referência futura).
 
-3. **Campo  adicionado** ao dicionário de cada NF retornado (para referência futura).
+### Resultado do teste (últimos 30 dias)
 
-### Resultado do teste (últimos 30 dias, 1ª página da API)
+- Total NFs saída (tpNF=1): **100**
+- **Excluídas pelo filtro**: 6 (amostras 5.949 × 3, entrega futura 5.117 × 1, retorno conserto 6.916 × 1, outro × 1)
+- **Incluídas**: 94
 
-- Total de NFs saída (tpNF=1): **100**
-- **Excluídas pelo filtro**: 6
-  - 3× CFOP 5.949 (amostras grátis)
-  - 1× CFOP 5.117 (encomenda entrega futura)
-  - 1× CFOP 6.916 (retorno de conserto)
-  - 1× outro
-- **Incluídas (venda real)**: 94
-
-### CFOPs encontrados nas NFs incluídas
+### CFOPs presentes nas NFs incluídas
 
 | CFOP | Qtd | Descrição |
 |---|---|---|
@@ -68,27 +67,20 @@ O Borderô precisava excluir:
 | 6.102 | 1 | Venda de Mercadoria (interestadual) |
 | 6.107 | 15 | Venda de Produção p/ Não Contribuinte (interestadual) |
 | 6.108 | 1 | Venda de Mercadoria p/ Não Contribuinte (interestadual) |
-| 5.201 | 1 | ⚠️ Devolução de Compra (VP devolve p/ fornecedor) |
-| 5.917 | 1 | ⚠️ Remessa por conta e ordem de terceiros |
-| 6.201 | 1 | ⚠️ Devolução de Compra (interestadual) |
+| 5.201 | 1 | Devolução de Compra → agora excluída (adicionada na sessão) |
+| 6.201 | 1 | Devolução de Compra interestadual → agora excluída |
+| 5.917 | 1 | Remessa por conta e ordem de terceiros (monitorar) |
 
 ---
 
-## Pendências
-
-- **5.201 / 6.201** (Devolução de Compra): NF emitida pela VP ao devolver mercadoria ao fornecedor. Não é receita de venda — é saída de estoque sem caixa. Aguardando confirmação do Gelson para incluir na lista de exclusão.
-- **5.917** (Remessa por conta e ordem de terceiros): 1 NF encontrada. Precisa investigar se é operação legítima de receita ou não.
-- Pendente de sessão anterior: decisão sobre 5.201/6.201 e 5.917 ainda não tomada.
-
----
-
-## Status
+## Status Final
 
 | Item | Status |
 |---|---|
-| Filtro CFOP no Borderô | ✅ Implementado e testado |
-| Relatório salvo em relatorio/ | ✅ Este documento |
-| Exclusão 5.201/6.201 | ⏳ Aguardando confirmação |
+| Filtro CFOP implementado em gerar_bordero.py | ✅ |
+| 5.201 / 5.202 / 6.201 / 6.202 adicionados à exclusão | ✅ |
+| CFOPs de venda real preservados (5.101, 5.102, 6.101, 6.102, 6.107, 6.108…) | ✅ |
+| CFOP 5.917 (1 NF) | ⚠️ Monitorar — pode ser legítimo ou não |
 
 ---
 
