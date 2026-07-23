@@ -93,3 +93,13 @@ Infra de apoio:
 ---
 
 *Atualizado em: 2026-05-31*
+
+---
+
+## Contributors
+
+- Gelson Simões — criador e responsável pelas soluções VerticalParts
+
+---
+
+**Feito por Gelson Simões**
