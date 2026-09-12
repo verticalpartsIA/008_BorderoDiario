@@ -18,10 +18,22 @@ mcp = FastMCP(
 
 def _numero(valor: str) -> str:
     digits = re.sub(r"\D", "", valor or "")
+
+    # Formatos brasileiros comuns podem vir com o zero de chamada antes do DDD:
+    # 011997663780 -> 11997663780 -> 5511997663780
+    # 55011997663780 -> 5511997663780
+    if digits.startswith("550") and len(digits) in {13, 14}:
+        digits = "55" + digits[3:]
+    elif digits.startswith("0") and len(digits) in {11, 12}:
+        digits = digits[1:]
+
     if len(digits) in {10, 11}:
         digits = "55" + digits
+
     if len(digits) < 12 or len(digits) > 13:
-        raise ValueError("Número inválido. Informe DDI+DDD+número.")
+        raise ValueError(
+            "Número inválido. Informe telefone brasileiro com DDD, com ou sem DDI 55 e com ou sem zero inicial."
+        )
     return digits
 
 
@@ -42,7 +54,7 @@ async def whatsapp_status() -> Any:
 
 @mcp.tool()
 async def whatsapp_verificar_numero(numero: str) -> Any:
-    """Verifica se um telefone pode ser localizado no WhatsApp. Aceita número brasileiro com ou sem DDI 55."""
+    """Verifica se um telefone está no WhatsApp. Aceita 011997663780, 11997663780 ou 5511997663780."""
     normalized = _numero(numero)
     result = await evolution.verificar_numero(normalized)
     write_audit("whatsapp_verificar_numero", {"numero": normalized, "ok": True})
