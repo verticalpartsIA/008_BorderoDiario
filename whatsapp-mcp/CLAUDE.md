@@ -2,6 +2,16 @@
 
 Leia este arquivo antes de alterar qualquer coisa dentro de `whatsapp-mcp/`.
 
+## Leitura obrigatória para trabalho de WhatsApp
+
+Antes de projetar, implementar ou revisar uma nova função de WhatsApp, leia:
+
+`rag/RAG_MCP_WHATSAPP_VERTICALPARTS.md`
+
+Esse é o documento canônico de conhecimento e comportamento do módulo. Ele define o Plano de Uso WhatsApp, SPEC, SDD, gatilhos, prazos, devoluções, aprovações, idempotência, webhooks, segurança, templates, auditoria, testes e critérios de aceitação.
+
+Regra central: se o usuário pedir uma nova função de WhatsApp sem informar detalhes suficientes para definir o comportamento, descubra primeiro o plano daquele uso. Pergunte somente o que falta e que altera o desenho, como gatilho, destinatário, ação esperada, link, prazo, follow-up, escalonamento, resposta esperada e critério de sucesso.
+
 ## Missão
 
 Construir e manter o gateway corporativo de WhatsApp da VerticalParts como uma camada única entre Claude/sistemas internos e a Evolution API.
@@ -27,6 +37,8 @@ Esses projetos são integrações externas e devem ser modificados apenas em tar
 
 Antes de reinventar comportamento, consulte:
 
+- `rag/RAG_MCP_WHATSAPP_VERTICALPARTS.md`
+- `rag/fine_tuning_seed.jsonl`
 - `../evolution-api/send-messages.md`
 - `../evolution-api/webhooks.md`
 - `../evolution-api/instance-management.md`
