@@ -2,6 +2,18 @@
 
 Camada corporativa de WhatsApp da VerticalParts, hospedada dentro do VP Automations Hub sem alterar o código existente do Hermes, Evolution API, n8n ou Pós-Venda 360.
 
+## RAG canônico para LLMs
+
+Qualquer LLM que vá projetar, implementar, revisar ou operar novas funções de WhatsApp deve ler primeiro:
+
+`rag/RAG_MCP_WHATSAPP_VERTICALPARTS.md`
+
+O documento define o Plano de Uso WhatsApp, SPEC, SDD, gatilhos, prazos, devoluções, aprovações, contratos de evento, templates, webhook, segurança, idempotência, auditoria, testes e comportamento esperado da LLM.
+
+Exemplos supervisionados para few-shot e avaliação estão em:
+
+`rag/fine_tuning_seed.jsonl`
+
 ## Objetivo
 
 Permitir que Claude Web, Claude Code e sistemas internos usem uma interface única para WhatsApp, sem precisar conhecer endpoints, instâncias, chaves ou detalhes da Evolution API.
@@ -85,6 +97,10 @@ whatsapp-mcp/
 │   ├── integrations.md
 │   ├── security.md
 │   └── tools.md
+├── rag/
+│   ├── README.md
+│   ├── RAG_MCP_WHATSAPP_VERTICALPARTS.md
+│   └── fine_tuning_seed.jsonl
 ├── .env.example
 └── pyproject.toml
 ```
