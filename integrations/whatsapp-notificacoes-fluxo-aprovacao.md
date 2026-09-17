@@ -309,6 +309,13 @@ grant select on public.whatsapp_notification_log to authenticated;
   privado.
 - Ao abrir uma Issue de dúvida (Seção 1), revise antes de enviar: nenhum
   número de telefone real de cliente, nenhuma chave, nenhum dado pessoal sensível.
+- **Este documento, de propósito, não contém nome, celular ou função de nenhum
+  colaborador.** Ele descreve o padrão por **papel** (`comprador`, `aprovador`,
+  `solicitante`) e por coluna de banco (`profiles.whatsapp_number`), nunca por
+  pessoa — porque cada projeto que replicar isso vai ter seu próprio quadro de
+  colaboradores. Dados reais de pessoas (nome/cargo/celular) não devem ser
+  adicionados aqui em nenhuma atualização futura; eles vivem no banco de cada
+  projeto e na documentação interna de RH, não neste repositório público.
 
 ---
 
